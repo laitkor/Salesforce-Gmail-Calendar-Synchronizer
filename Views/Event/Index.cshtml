@@ -1,0 +1,9 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Salesforce Events</h2>
+@if (TempData["msg"] != null)
+{ 
+    <p style="color:red;">@TempData["msg"].ToString()</p>
+}
