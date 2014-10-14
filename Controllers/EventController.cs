@@ -5,6 +5,16 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
+using Google;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Calendar.v3;
+using Google.Apis.Calendar.v3.Data;
+using Google.Apis.Services;
+using System.Threading;
+using System.IO;
+using Google.Apis.Util.Store;
+
+
 namespace SalesforceEventSync.Controllers
 {
     public class EventController : Controller
@@ -14,21 +24,26 @@ namespace SalesforceEventSync.Controllers
 
         public ActionResult Index()
         {
-            SforceService objSalesforceService = SFAuthenticate();
+            //var calendarList = 
+                getGoogleEventList();
 
-            Event objEvent = new Event();
+            //SforceService objSalesforceService = SFAuthenticate();
 
-            objEvent.Subject = "Test Calendar Event New";
-            objEvent.Description = "Test Calendar Event New";
-            objEvent.Location = "India";
-            objEvent.StartDateTimeSpecified = true;
-            objEvent.StartDateTime = new DateTime(2014, 10, 15, 18, 0, 0);
-            objEvent.EndDateTimeSpecified = true;
-            objEvent.EndDateTime = new DateTime(2014, 10, 15, 18, 0, 0).AddHours(2);
+            //foreach (var CalEvent in calendarList)
+            //{
+            //    WebReference.Event objEvent = new WebReference.Event();
 
-            SaveResult[] objSaveResult = objSalesforceService.create(new Event[] { objEvent });
+            //    objEvent.Subject = "Test Calendar Event New";
+            //    objEvent.Description = "Test Calendar Event New";
+            //    objEvent.Location = "India";
+            //    objEvent.StartDateTimeSpecified = true;
+            //    objEvent.StartDateTime = new DateTime(2014, 10, 15, 18, 0, 0);
+            //    objEvent.EndDateTimeSpecified = true;
+            //    objEvent.EndDateTime = new DateTime(2014, 10, 15, 18, 0, 0).AddHours(2);
 
-            objSalesforceService.logout();
+            //    SaveResult[] objSaveResult = objSalesforceService.create(new WebReference.Event[] { objEvent });
+            //}
+            //objSalesforceService.logout();
             
             return View();
         }
@@ -53,5 +68,40 @@ namespace SalesforceEventSync.Controllers
             return objSalesService;
         }
 
+        private EventsResource getGoogleEventList()
+        {
+            UserCredential credential;
+            //using (var fs = new FileStream(Server.MapPath("~/Content/client_secret_48938331338-v8lgvsugfbpjujbonvgt7kddp4e20ce0.apps.googleusercontent.com.json"), FileMode.Open, FileAccess.Read))
+            //{
+                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                        //GoogleClientSecrets.Load(fs).Secrets,
+                        new ClientSecrets
+                        {
+                            ClientId = "48938331338-v8lgvsugfbpjujbonvgt7kddp4e20ce0.apps.googleusercontent.com",
+                            ClientSecret = "jczdSaVUrQsGAY4I10JaO55w"
+                        },
+                        new[] { CalendarService.Scope.Calendar },
+                        "user",
+                        CancellationToken.None
+                        //new FileDataStore("Calendar.Auth.store")
+                        ).Result;
+            //}
+            var service = new CalendarService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = "Calendar API sample"
+            });
+
+            //Events objEvent = new Events();
+            
+            
+
+            return service.Events;
+        }
+
+        public ActionResult EventConfirm()
+        {
+            return View();
+        }
     }
 }
